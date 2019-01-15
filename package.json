@@ -1,0 +1,18 @@
+{
+  "name": "react-native-touchable-view",
+  "version": "1.0.0",
+  "description": "你可以依赖这个TouchableView的长按,滑动,X轴滑动,Y轴滑动,长按后滑动等手势响应得到回调和一系列参数做你的业务。",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:thisXY/react-native-touchable-view.git"
+  },
+  "homepage": "https://github.com/thisXY/react-native-touchable-view#readme",
+  "keywords": [
+    "react native touchable view",
+    "react native手势响应控制"
+  ],
+  "main": "src/index.js",
+  "author": "XY",
+  "email": "543230241@qq.com"
+}
