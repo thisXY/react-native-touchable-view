@@ -14,8 +14,22 @@ class Touchable extends Component {
     longPressTestTime: PropTypes.number,
     // 滑动判定距离
     moveTestDistance: PropTypes.number,
+    // 滑动方向判定距离
+    moveTestDirectionDistance: PropTypes.number,
     // 滑动响应节流时间 (ms)
     moveThrottleTime: PropTypes.number,
+    // 是否捕获事件
+    isCapture: PropTypes.bool,
+    // 是否可被其他手势终止事件 (一般在事件View叠加或交叉时会触发)
+    isTermination: PropTypes.bool,
+    // 按下是否判定滑动
+    isPressTestMove: PropTypes.bool,
+    // 是否禁用
+    isDisable: PropTypes.bool,
+    // X轴滑动判定角度 (相对X轴线为0度)
+    xTestAngle: PropTypes.number,
+    // Y轴滑动判定角度 (相对Y轴线为0度; 优先级高于X轴滑动判定角度)
+    yTestAngle: PropTypes.number,
     /**
      * 按下开始
      * @param evt
@@ -41,6 +55,12 @@ class Touchable extends Component {
      */
     onLongPress: PropTypes.func,
     /**
+     * 滑动开始
+     * @param evt
+     * @param gestureState
+     */
+    onMoveStart: PropTypes.func,
+    /**
      * 滑动
      * @param evt
      * @param gestureState
@@ -59,6 +79,18 @@ class Touchable extends Component {
      */
     onMoveXStart: PropTypes.func,
     /**
+     * 向左滑动开始
+     * @param evt
+     * @param gestureState
+     */
+    onMoveLeftStart: PropTypes.func,
+    /**
+     * 向右滑动开始
+     * @param evt
+     * @param gestureState
+     */
+    onMoveRightStart: PropTypes.func,
+    /**
      * X轴滑动
      * @param evt
      * @param gestureState
@@ -71,6 +103,18 @@ class Touchable extends Component {
      */
     onMoveYStart: PropTypes.func,
     /**
+     * 向上滑动开始
+     * @param evt
+     * @param gestureState
+     */
+    onMoveUpStart: PropTypes.func,
+    /**
+     * 向下滑动开始
+     * @param evt
+     * @param gestureState
+     */
+    onMoveDownStart: PropTypes.func,
+    /**
      * Y轴滑动
      * @param evt
      * @param gestureState
@@ -82,18 +126,30 @@ class Touchable extends Component {
     style: null,
     children: null,
     longPressTestTime: 500,
-    moveTestDistance: 10,
+    moveTestDistance: 5,
+    moveTestDirectionDistance: 10,
     moveThrottleTime: 10,
-    onPressIn: null,
-    onPressOut: null,
-    onPress: null,
-    onLongPress: null,
-    onMove: null,
-    onLongMove: null,
-    onMoveXStart: null,
-    onMoveX: null,
-    onMoveYStart: null,
-    onMoveY: null,
+    isCapture: false,
+    isTermination: false,
+    isPressTestMove: false,
+    isDisable: false,
+    xTestAngle: 45,
+    yTestAngle: 45,
+    onPressIn: () => {},
+    onPressOut: () => {},
+    onPress: () => {},
+    onLongPress: () => {},
+    onMoveStart: () => {},
+    onMove: () => {},
+    onLongMove: () => {},
+    onMoveXStart: () => {},
+    onMoveLeftStart: () => {},
+    onMoveRightStart: () => {},
+    onMoveX: () => {},
+    onMoveYStart: () => {},
+    onMoveUpStart: () => {},
+    onMoveDownStart: () => {},
+    onMoveY: () => {},
   }
 
   constructor(props) {
@@ -108,38 +164,39 @@ class Touchable extends Component {
     this.moveDirection = false;
     // 是否长按
     this.isLongPress = false;
+    // 是否滑动
+    this.isMove = false;
     // 滑动时间记录
     this.moveTime = 0;
 
     this.panResponder = PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => !this.props.isDisable,
 
-      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => !this.props.isDisable,
 
-      onStartShouldSetPanResponderCapture: () => [this.props.onPressIn, this.props.onPressOut, this.props.onPress, this.props.onLongPress, this.props.onLongMove]
-        .filter(action => action !== null).length > 0,
+      onStartShouldSetPanResponderCapture: () => this.props.isCapture,
 
-      onMoveShouldSetPanResponderCapture: () => [this.props.onMove, this.props.onLongMove, this.props.onMoveXStart, this.props.onMoveX, this.props.onMoveYStart, this.props.onMoveY]
-        .filter(action => action !== null).length > 0,
+      onMoveShouldSetPanResponderCapture: () => this.props.isCapture,
 
       onPanResponderGrant: (evt, gestureState) => {
         this.pressInCoordinate = { x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY };
         this.moveDirection = false;
         this.isLongPress = false;
+        this.isMove = false;
         const evtRecord = { ...evt };
         const gestureStateRecord = { ...gestureState };
 
-        this.clearLongPressTestTimer();
+        this._clearLongPressTestTimer();
         this.longPressTestTimer = setTimeout(() => {
-          if (!this.moveDirection) {
+          if (!this.isMove) {
             // 长按
-            this.props.onLongPress && this.props.onLongPress(evtRecord, gestureStateRecord);
+            this.props.onLongPress(evtRecord, gestureStateRecord);
             this.isLongPress = true;
           }
         }, this.props.longPressTestTime);
 
         // 按下开始
-        this.props.onPressIn && this.props.onPressIn(evt, gestureState);
+        this.props.onPressIn(evt, gestureState);
       },
 
       onPanResponderMove: (evt, gestureState) => {
@@ -150,66 +207,112 @@ class Touchable extends Component {
         }
 
         const coordinate = { x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY };
+        if (!this.isMove) {
+          this.isMove = (coordinate.y - this.pressInCoordinate.y) ** 2 + (coordinate.x - this.pressInCoordinate.x) ** 2 >= this.props.moveTestDistance ** 2;
+          if (this.isMove) {
+            // 滑动开始
+            this.props.onMoveStart(evt, gestureState);
+          }
+        }
         switch (this.moveDirection) {
           // X轴滑动
           case 'X':
-            this.props.onMoveX && this.props.onMoveX(evt, gestureState);
+            this.props.onMoveX(evt, gestureState);
             break;
           // Y轴滑动
           case 'Y':
-            this.props.onMoveY && this.props.onMoveY(evt, gestureState);
+            this.props.onMoveY(evt, gestureState);
             break;
           // 未判定滑动方向
           case false:
-            if ((coordinate.y - this.pressInCoordinate.y) ** 2 + (coordinate.x - this.pressInCoordinate.x) ** 2 >= this.props.moveTestDistance ** 2) {
-              const tan = (coordinate.y - this.pressInCoordinate.y) / (coordinate.x - this.pressInCoordinate.x);
-              if (tan >= 1 || tan <= -1) {
+            if (this.isMove && (coordinate.y - this.pressInCoordinate.y) ** 2 + (coordinate.x - this.pressInCoordinate.x) ** 2 >= this.props.moveTestDirectionDistance ** 2) {
+              // 斜率
+              const slope = (coordinate.y - this.pressInCoordinate.y) / (coordinate.x - this.pressInCoordinate.x);
+              // 角度
+              const angle = Math.atan(Math.abs(slope)) * (180 / Math.PI);
+              if (this.props.yTestAngle >= 90 - angle) {
                 this.moveDirection = 'Y';
-                this.props.onMoveYStart && this.props.onMoveYStart(evt, gestureState);
-                this.props.onMoveY && this.props.onMoveY(evt, gestureState);
+                if (gestureState.dy > 0) {
+                  // 向下滑动开始
+                  this.props.onMoveDownStart(evt, gestureState);
+                }
+                else {
+                  // 向上滑动开始
+                  this.props.onMoveUpStart(evt, gestureState);
+                }
+                // Y轴滑动开始
+                this.props.onMoveYStart(evt, gestureState);
+                // Y轴滑动
+                this.props.onMoveY(evt, gestureState);
               }
-              else {
+              else if (angle <= this.props.xTestAngle) {
                 this.moveDirection = 'X';
-                this.props.onMoveXStart && this.props.onMoveXStart(evt, gestureState);
-                this.props.onMoveX && this.props.onMoveX(evt, gestureState);
+                if (gestureState.dx > 0) {
+                  // 向右滑动开始
+                  this.props.onMoveRightStart(evt, gestureState);
+                }
+                else {
+                  // 向左滑动开始
+                  this.props.onMoveLeftStart(evt, gestureState);
+                }
+                // X轴滑动开始
+                this.props.onMoveXStart(evt, gestureState);
+                // X轴滑动
+                this.props.onMoveX(evt, gestureState);
               }
             }
             break;
         }
-        // 滑动
-        this.props.onMove && this.props.onMove(evt, gestureState);
-        if (this.isLongPress) {
-          // 长按滑动
-          this.props.onLongMove && this.props.onLongMove(evt, gestureState);
+
+        if (this.isMove) {
+          // 滑动
+          this.props.onMove(evt, gestureState);
+
+          if (this.isLongPress) {
+            // 长按滑动
+            this.props.onLongMove(evt, gestureState);
+          }
         }
       },
 
       onPanResponderRelease: (evt, gestureState) => {
-        this.onPressOut(evt, gestureState);
+        this._onPressOut(evt, gestureState);
       },
 
+      onPanResponderTerminationRequest: () => this.props.isTermination || this.props.isDisable,
+
       onPanResponderTerminate: (evt, gestureState) => {
-        this.onPressOut(evt, gestureState);
+        this._onPressOut(evt, gestureState);
       },
     });
   }
 
-  clearLongPressTestTimer = () => {
+  /**
+   * 清除长按判定定时器
+   * @private
+   */
+  _clearLongPressTestTimer = () => {
     if (this.longPressTestTimer) {
       clearTimeout(this.longPressTestTimer);
       this.longPressTestTimer = null;
     }
   }
 
-  onPressOut = (evt, gestureState) => {
-    this.clearLongPressTestTimer();
-    // 无滑动
-    if (!this.moveDirection) {
+  /**
+   * 按下结束
+   * @param evt
+   * @param gestureState
+   * @private
+   */
+  _onPressOut = (evt, gestureState) => {
+    this._clearLongPressTestTimer();
+
+    if (!this.props.isPressTestMove || !this.isMove) {
       // 按下
-      this.props.onPress && this.props.onPress(evt, gestureState);
+      this.props.onPress(evt, gestureState);
     }
     // 按下结束
-    this.props.onPressOut && this.props.onPressOut(evt, gestureState);
+    this.props.onPressOut(evt, gestureState);
   }
 
   render() {
