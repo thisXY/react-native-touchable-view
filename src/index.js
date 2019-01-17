@@ -14,8 +14,8 @@ class Touchable extends Component {
     longPressTestTime: PropTypes.number,
     // 滑动判定距离
     moveTestDistance: PropTypes.number,
-    // 滑动冷却时间 (ms)
-    moveCoolingTime: PropTypes.number,
+    // 滑动响应节流时间 (ms)
+    moveThrottleTime: PropTypes.number,
     /**
      * 按下开始
      * @param evt
@@ -83,7 +83,7 @@ class Touchable extends Component {
     children: null,
     longPressTestTime: 500,
     moveTestDistance: 10,
-    moveCoolingTime: 10,
+    moveThrottleTime: 10,
     onPressIn: null,
     onPressOut: null,
     onPress: null,
@@ -143,9 +143,9 @@ class Touchable extends Component {
       },
 
       onPanResponderMove: (evt, gestureState) => {
-        const moveCoolingTime = this.moveTime;
+        const moveThrottleTime = this.moveTime;
         this.moveTime = new Date().getTime();
-        if (this.moveTime - moveCoolingTime <= this.props.moveCoolingTime) {
+        if (this.moveTime - moveThrottleTime <= this.props.moveThrottleTime) {
           return;
         }
 

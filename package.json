@@ -1,6 +1,6 @@
 {
   "name": "react-native-touchable-view",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "你可以依赖这个TouchableView的长按,滑动,X轴滑动,Y轴滑动,长按后滑动等手势响应得到回调和一系列参数(如相对父组件x、y坐标,相对页面x、y坐标)处理你的业务(如手势动画)。",
   "license": "MIT",
   "repository": {
