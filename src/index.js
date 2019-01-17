@@ -116,10 +116,8 @@ class Touchable extends Component {
 
       onMoveShouldSetPanResponder: () => true,
 
-      onStartShouldSetPanResponderCapture: () => {
-        return [this.props.onPressIn, this.props.onPressOut, this.props.onPress, this.props.onLongPress, this.props.onLongMove]
-            .filter(action => action !== null).length > 0;
-      },
+      onStartShouldSetPanResponderCapture: () => [this.props.onPressIn, this.props.onPressOut, this.props.onPress, this.props.onLongPress, this.props.onLongMove]
+        .filter(action => action !== null).length > 0,
 
       onMoveShouldSetPanResponderCapture: () => [this.props.onMove, this.props.onLongMove, this.props.onMoveXStart, this.props.onMoveX, this.props.onMoveYStart, this.props.onMoveY]
         .filter(action => action !== null).length > 0,
