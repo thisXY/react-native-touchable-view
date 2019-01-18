@@ -18,10 +18,12 @@ class Touchable extends Component {
     moveTestDirectionDistance: PropTypes.number,
     // 滑动响应节流时间 (ms)
     moveThrottleTime: PropTypes.number,
-    // 是否捕获事件
+    // 是否捕获事件 (捕获后子事件View将不可响应)
     isCapture: PropTypes.bool,
-    // 是否可被其他手势终止事件 (一般在事件View叠加或交叉时会触发)
+    // 是否在非捕获事件下可被其他手势终止事件 (一般在事件View叠加或交叉时会触发)
     isTermination: PropTypes.bool,
+    // 被其他手势终止事件后是否提交响应结果
+    isReleaseTerminated: PropTypes.bool,
     // 按下是否判定滑动
     isPressTestMove: PropTypes.bool,
     // 是否禁用
@@ -131,6 +133,7 @@ class Touchable extends Component {
     moveThrottleTime: 10,
     isCapture: false,
     isTermination: false,
+    isReleaseTerminated: true,
     isPressTestMove: false,
     isDisable: false,
     xTestAngle: 45,
@@ -156,18 +159,22 @@ class Touchable extends Component {
     super(props);
     this.state = {};
 
+    // 是否开始
+    this.isStart = false;
     // 按下坐标
     this.pressInCoordinate = { x: 0, y: 0 };
     // 长按判定定时器
     this.longPressTestTimer = null;
-    // 滑动方向 ['X', 'Y', false]
-    this.moveDirection = false;
     // 是否长按
     this.isLongPress = false;
-    // 是否滑动
-    this.isMove = false;
+    // 滑动方向 ['X', 'Y', false]
+    this.moveDirection = false;
     // 滑动时间记录
     this.moveTime = 0;
+    // 是否滑动
+    this.isMove = false;
+    // 是否被其他手势终止事件
+    this.isTerminated = false;
 
     this.panResponder = PanResponder.create({
       onStartShouldSetPanResponder: () => !this.props.isDisable,
@@ -178,17 +185,20 @@ class Touchable extends Component {
 
       onMoveShouldSetPanResponderCapture: () => this.props.isCapture,
 
-      onPanResponderGrant: (evt, gestureState) => {
-        this.pressInCoordinate = { x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY };
-        this.moveDirection = false;
+      onPanResponderStart: (evt, gestureState) => {
+        this.isStart = true;
         this.isLongPress = false;
+        this.moveDirection = false;
         this.isMove = false;
+        this.isTerminated = false;
+        this.pressInCoordinate = { x: evt.nativeEvent.pageX, y: evt.nativeEvent.pageY };
+
         const evtRecord = { ...evt };
         const gestureStateRecord = { ...gestureState };
 
         this._clearLongPressTestTimer();
         this.longPressTestTimer = setTimeout(() => {
-          if (!this.isMove) {
+          if (!this.isMove && (this.props.isReleaseTerminated || !this.isTerminated)) {
             // 长按
             this.props.onLongPress(evtRecord, gestureStateRecord);
             this.isLongPress = true;
@@ -277,12 +287,17 @@ class Touchable extends Component {
 
       onPanResponderRelease: (evt, gestureState) => {
         this._onPressOut(evt, gestureState);
+        this.isStart = false;
       },
 
-      onPanResponderTerminationRequest: () => this.props.isTermination || this.props.isDisable,
+      onPanResponderTerminationRequest: () => this.props.isTermination && !this.props.isCapture || this.props.isDisable,
 
       onPanResponderTerminate: (evt, gestureState) => {
-        this._onPressOut(evt, gestureState);
+        this.isTerminated = true;
+        if (this.props.isReleaseTerminated) {
+          this._onPressOut(evt, gestureState);
+        }
+        this.isStart = false;
       },
     });
   }
@@ -306,6 +321,7 @@ class Touchable extends Component {
    */
   _onPressOut = (evt, gestureState) => {
     this._clearLongPressTestTimer();
+    if (!this.isStart) return;
 
     if (!this.props.isPressTestMove || !this.isMove) {
       // 按下

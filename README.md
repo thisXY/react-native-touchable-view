@@ -9,14 +9,15 @@ npm install react-native-touchable-view --save
 
 ### 属性
 | parameter                  | type                               | required | default | description                                                                                                                                                                                                                        
-| :------------------------- | :--------------------------------- | :------- | :-------| :---------------------------------------------------                                                                
+| :------------------------- | :--------------------------------- | :------- | :-------| :---------------------------------------------------------------                                                                
 | style                      | oneOfType([number, object, array]) | no       |         | 样式    
 | longPressTestTime          | number                             | no       | 500     | 长按判定时间 (ms)
 | moveTestDistance           | number                             | no       | 5       | 滑动判定距离
 | moveTestDirectionDistance  | number                             | no       | 10      | 滑动方向判定距离
 | moveThrottleTime           | number                             | no       | 10      | 滑动响应节流时间 (ms)
-| isCapture                  | bool                               | no       | false   | 是否捕获事件
-| isTermination              | bool                               | no       | false   | 是否可被其他手势终止事件 (一般在事件View叠加或交叉时会触发)
+| isCapture                  | bool                               | no       | false   | 是否捕获事件 (捕获后子事件View将不可响应)
+| isTermination              | bool                               | no       | false   | 是否在非捕获事件下可被其他手势终止事件 (一般在事件View叠加或交叉时会触发)
+| isReleaseTerminated        | bool                               | no       | true    | 被其他手势终止事件后是否提交响应结果
 | isPressTestMove            | bool                               | no       | false   | 按下是否判定滑动
 | isDisable                  | bool                               | no       | false   | 是否禁用
 | xTestAngle                 | number                             | no       | 45      | X轴滑动判定角度 (相对X轴线为0度)
