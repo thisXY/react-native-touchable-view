@@ -1,4 +1,8 @@
 # react-native-touchable-view
+[![Platform](https://img.shields.io/badge/platform-react--native-lightgrey.svg)](http://facebook.github.io/react-native/)
+[![npm version](http://img.shields.io/npm/v/react-native-touchable-view.svg)](https://www.npmjs.com/package/react-native-touchable-view)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/thisXY/react-native-touchable-view/master/LICENSE)
+
 你可以依赖这个TouchableView的长按,滑动,X轴滑动,Y轴滑动,长按后滑动等手势响应得到回调和一系列参数(如相对父组件x、y坐标,相对页面x、y坐标,x轴位移、y轴位移)处理你的业务(如手势动画)。
 
 ### 安装
@@ -38,24 +42,15 @@ npm install react-native-touchable-view --save
 | onMoveDownStart            | func                               | no       |         | 向下滑动开始 (evt, gestureState)
 | onMoveY                    | func                               | no       |         | Y轴滑动 (evt, gestureState)
 
-<br>
-关于事件参数evt.nativeEvent一些解释: 
-<br>
-locationX: 相对父组件X坐标
-<br>
-locationY: 相对父组件Y坐标
-<br>
-pageX: 相对页面X坐标
-<br>
-pageY: 相对页面Y坐标
-<br>
-<br>
-关于事件参数gestureState一些解释:
-<br>
-dx: X轴位移
-<br>
-dy: Y轴位移
+* 关于事件参数evt.nativeEvent一些解释:
+  * locationX: 相对父组件X坐标
+  * locationY: 相对父组件Y坐标
+  * pageX: 相对页面X坐标
+  * pageY: 相对页面Y坐标
+* 关于事件参数gestureState一些解释:
+  * dx: X轴位移
+  * dy: Y轴位移
 
 ### 源码
 
-https://github.com/thisXY/react-native-touchable-view
+> https://github.com/thisXY/react-native-touchable-view
