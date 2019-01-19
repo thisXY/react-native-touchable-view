@@ -19,6 +19,7 @@ npm install react-native-touchable-view --save
 | moveTestDistance           | number                             | no       | 5       | 滑动判定距离
 | moveTestDirectionDistance  | number                             | no       | 10      | 滑动方向判定距离
 | moveThrottleTime           | number                             | no       | 10      | 滑动响应节流时间 (ms)
+| isTillDirection            | bool                               | no       | false   | 是否在未得到有效滑动方向(X、Y)时一直判定
 | isCapture                  | bool                               | no       | false   | 是否捕获事件 (捕获后子事件View将不可响应)
 | isTermination              | bool                               | no       | false   | 是否在非捕获事件下可被其他手势终止事件 (一般在事件View叠加或交叉时会触发)
 | isReleaseTerminated        | bool                               | no       | true    | 被其他手势终止事件后是否提交响应结果

@@ -18,6 +18,8 @@ class Touchable extends Component {
     moveTestDirectionDistance: PropTypes.number,
     // 滑动响应节流时间 (ms)
     moveThrottleTime: PropTypes.number,
+    // 是否在未得到有效滑动方向(X、Y)时一直判定
+    isTillDirection: PropTypes.bool,
     // 是否捕获事件 (捕获后子事件View将不可响应)
     isCapture: PropTypes.bool,
     // 是否在非捕获事件下可被其他手势终止事件 (一般在事件View叠加或交叉时会触发)
@@ -131,6 +133,7 @@ class Touchable extends Component {
     moveTestDistance: 5,
     moveTestDirectionDistance: 10,
     moveThrottleTime: 10,
+    isTillDirection: false,
     isCapture: false,
     isTermination: false,
     isReleaseTerminated: true,
@@ -167,7 +170,7 @@ class Touchable extends Component {
     this.longPressTestTimer = null;
     // 是否长按
     this.isLongPress = false;
-    // 滑动方向 ['X', 'Y', false]
+    // 滑动方向 ['X', 'Y', false, true]
     this.moveDirection = false;
     // 滑动时间记录
     this.moveTime = 0;
@@ -269,6 +272,10 @@ class Touchable extends Component {
                 this.props.onMoveXStart(evt, gestureState);
                 // X轴滑动
                 this.props.onMoveX(evt, gestureState);
+              }
+              else if (!this.props.isTillDirection) {
+                // 已判定滑动方向
+                this.moveDirection = true;
               }
             }
             break;
