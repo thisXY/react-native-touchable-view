@@ -55,3 +55,9 @@ npm install react-native-touchable-view --save
 ### 源码
 
 > https://github.com/thisXY/react-native-touchable-view
+
+### react native动画组件推荐
+* https://github.com/thisXY/react-native-animated-view 
+  > 你可以像jQuery那样只给结果样式就能操作各种动画,你可以控制每一个样式的动画时间、动画函数甚至每一帧等。总之,你可以随意搭配轻松如意地操纵react-native动画
+* https://github.com/thisXY/react-native-easing 
+  > react native easing的一些别名封装和自定义封装,让你可以更好地使用easing
