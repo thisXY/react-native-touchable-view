@@ -38,10 +38,12 @@ npm install react-native-touchable-view --save
 | onMoveLeftStart            | func                               | no       |         | 向左滑动开始 (evt, gestureState)
 | onMoveRightStart           | func                               | no       |         | 向右滑动开始 (evt, gestureState)
 | onMoveX                    | func                               | no       |         | X轴滑动 (evt, gestureState)
+| onLongMoveX                | func                               | no       |         | 长按X轴滑动 (evt, gestureState)
 | onMoveYStart               | func                               | no       |         | Y轴滑动开始 (evt, gestureState)
 | onMoveUpStart              | func                               | no       |         | 向上滑动开始 (evt, gestureState)
 | onMoveDownStart            | func                               | no       |         | 向下滑动开始 (evt, gestureState)
 | onMoveY                    | func                               | no       |         | Y轴滑动 (evt, gestureState)
+| onLongMoveY                | func                               | no       |         | 长按Y轴滑动 (evt, gestureState)
 
 * 关于事件参数evt.nativeEvent一些解释:
   * locationX: 相对父组件X坐标

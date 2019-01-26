@@ -101,6 +101,12 @@ class Touchable extends Component {
      */
     onMoveX: PropTypes.func,
     /**
+     * 长按X轴滑动
+     * @param evt
+     * @param gestureState
+     */
+    onLongMoveX: PropTypes.func,
+    /**
      * Y轴滑动开始
      * @param evt
      * @param gestureState
@@ -124,6 +130,12 @@ class Touchable extends Component {
      * @param gestureState
      */
     onMoveY: PropTypes.func,
+    /**
+     * 长按Y轴滑动
+     * @param evt
+     * @param gestureState
+     */
+    onLongMoveY: PropTypes.func,
   };
 
   static defaultProps = {
@@ -152,10 +164,12 @@ class Touchable extends Component {
     onMoveLeftStart: () => {},
     onMoveRightStart: () => {},
     onMoveX: () => {},
+    onLongMoveX: () => {},
     onMoveYStart: () => {},
     onMoveUpStart: () => {},
     onMoveDownStart: () => {},
     onMoveY: () => {},
+    onLongMoveY: () => {},
   }
 
   constructor(props) {
@@ -231,10 +245,18 @@ class Touchable extends Component {
           // X轴滑动
           case 'X':
             this.props.onMoveX(evt, gestureState);
+            if (this.isLongPress) {
+              // 长按X轴滑动
+              this.props.onLongMoveX(evt, gestureState);
+            }
             break;
           // Y轴滑动
           case 'Y':
             this.props.onMoveY(evt, gestureState);
+            if (this.isLongPress) {
+              // 长按Y轴滑动
+              this.props.onLongMoveY(evt, gestureState);
+            }
             break;
           // 未判定滑动方向
           case false:
